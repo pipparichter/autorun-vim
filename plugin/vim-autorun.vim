@@ -59,7 +59,6 @@ augroup load_and_write_projects
 augroup END
 
 " Settings (adjustable) ------------------------------
-
 let g:add_buffer_when_making_new_project = 1
 let s:current_project = ""
 
@@ -83,8 +82,10 @@ endfunction
 function! RunPython()
     " Save the open buffer
     w
+    " Assign the path to the current working directory to the a register.
+    let l:command_string = "! gnome-terminal --window -- sh -c 'python " . getcwd() . "/% ; bash'" 
     " Open a new window and run the current file
-    ! "gnome-terminal --window --  python " + expand("%")
+    execute l:command_string
 
 endfunction
 
