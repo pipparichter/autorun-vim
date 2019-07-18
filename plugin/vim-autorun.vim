@@ -1,8 +1,42 @@
 " Variables -----------------------------------------
-
+ 
 " Stores project information in the form 
 " {project_name:['path':path,'files':[file1, file2, file3,...]}, ...}
-let g:cpp_projects = {} 
+let g:cpp_projects = {}
+
+
+" The list of CPP projects was loaded into the projects.txt in the following
+" format:
+" {project name} : {path} :: {file1} ::: {file2} ::: {file3}...
+" {project name} : ...
+function s:FileToDict(a:file)
+    let l:dict = {}
+    " readfile() automatically splits the file into a list, one item per line
+    " in file
+    let l:split_by_project = readfile(a:file)
+        for project in l:split_by_project
+            let l:first = split(project, " : ")
+            let l:name = l:first[0]
+            l:dict[l:name] = {}
+
+            let l:second = split(l:first[1], " :: ")
+            let l:path = l:second[0]
+            l:dict[l:name]["path"] = l:path
+
+            let l:third = split(l:second[1], " ::: ")
+            let l:files = l:third
+            l:dict[l:name]["files"] = l:files
+        endfor
+    return l:dict
+
+endfunction
+
+
+augroup load_and_write_projects
+    autocmd!
+    autocmd BufWinEnter * let g:cpp_projects = FileToDict("./projects.txt")
+    autocmd BufWinLeave * call 
+augroup END
 
 " Settings (adjustable) ------------------------------
 
@@ -55,6 +89,7 @@ function RunCPP()
             ! "gnome-terminal --window --working-directory " + l:working_directory + " -- sh -c './a.out ; bash'"
         endif
     endif
+
 endfunction
 
 
@@ -136,7 +171,11 @@ endfunction
 
 " Commands --------------------------------------------
 command RunCPP call RunCPP()
-command AddToCPPProject call AddToCPPProject()
+command -nargs=* AddToCPPProject call AddToCPPProject(<args>)
+command ShowCPPProjects call ShowCPPProjects()
+command -nargs=1 SetCurrentProject(<args>)
+command -nargs=1 MakeCPPProject call MakeCPPProject(<args>)
+command Run call Run()
 
 
 " Mappings --------------------------------------------
