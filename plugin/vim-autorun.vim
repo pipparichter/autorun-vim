@@ -30,7 +30,7 @@ function! LoadCPPProjects()
     if findfile("projects.txt", expand("~/.vim")) == expand("~/.vim/projects.txt")
         " readfile() automatically splits the file into a list, one item per line
         " in file
-        let l:split_by_project = readfile(expand("~/vim/projects.txt"))
+        let l:split_by_project = readfile(expand("~/.vim/projects.txt"))
         for project in l:split_by_project
             let l:first = split(project, " : ")
             let l:name = l:first[0]
