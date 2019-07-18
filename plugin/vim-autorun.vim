@@ -3,7 +3,7 @@
 " Stores project information in the form 
 " {project_name:['path':path,'files':[file1, file2, file3,...]}, ...}
 let g:cpp_projects = {}
-
+let g:current_project = ""
 
 " The list of CPP projects was loaded into the projects.txt in the following
 " format:
@@ -12,22 +12,22 @@ let g:cpp_projects = {}
 function! LoadCPPProjects()
     let l:dictionary = {}
     " Only try loading projects.txt if the file exists
-    if findfile("projects.txt", expand("~/.vim")) = expand("~/.vim/projects.txt")
+    if findfile("projects.txt", expand("~/.vim")) == expand("~/.vim/projects.txt")
         " readfile() automatically splits the file into a list, one item per line
         " in file
         let l:split_by_project = readfile(expand("~/vim/projects.txt"))
         for project in l:split_by_project
             let l:first = split(project, " : ")
             let l:name = l:first[0]
-            l:dictionary[l:name] = {}
+            let l:dictionary[l:name] = {}
 
             let l:second = split(l:first[1], " :: ")
             let l:path = l:second[0]
-            l:dictionary[l:name]["path"] = l:path
+            let l:dictionary[l:name]["path"] = l:path
 
             let l:third = split(l:second[1], " ::: ")
             let l:files = l:third
-            l:dictionary[l:name]["files"] = l:files
+            let l:dictionary[l:name]["files"] = l:files
         endfor
     endif
 
@@ -117,19 +117,22 @@ function! MakeCPPProject(project_name)
     " Check to see whether or not the project already exists
     if get(g:cpp_projects, a:project_name) == 0
         " Add a new project to cpp_projects
-        g:cpp_projects[a:project_name] = {"path":"", "files":[]}
+        let g:cpp_projects[a:project_name] = {"path":"", "files":[]}
         
-        let l:files = g:cpp_projects[a:project_name]["files"]
-        let l:path = g:cpp_projects[a:project_name]["path"]
         " Set the project path to the current working directory
-        l:path = ! "cd .." 
+        let l:path = expand(getcwd()) 
+        let g:cpp_projects[a:project_name]["path"] = l:path
+
 
         if g:add_buffer_when_making_project == 1
+            " Save the current buffer
+            w
             " Add the current buffer to the new project
-            l:files += [expand("%")] 
-        elseif g:add_buffer_when_making_project == 0:
+            let let g:cpp_projects[a:project_name]["files"] += [expand("%")] 
+        elseif g:add_buffer_when_making_project == 0
             " If the setting is off, do not add the current buffer to the new
-            " project
+            " project (not a necessary command, there for readability)
+            let g:cpp_projects[a:project_name]["files"] = []
         else
             echo "There may be something wrong with your settings. Make sure g:add_buffer_when_making_project is either 0 or 1."
         endif
@@ -140,27 +143,27 @@ function! MakeCPPProject(project_name)
 endfunction
 
 
-" Accepts an undefined number of arguments in the form of filenames (if the
-" file is in the project home directory) or filepaths (preferred)
+" Accepts an undefined number of arguments in the form of relative file paths.
 function! AddToCPPProject(...)
-    if len(g:current_project) == 0
+    if g:current_project == ""
         echo "Please specify youre current project using the :SetCurrentCPPProject command"
     else
         "Save the current buffer
         w
 
         let l:to_add = a:00
-        " Assign a copy of the current files in project to the variable
-        " current_files
-        let l:current_files = g:cpp_projects[g:current_project][:]
-    
-        for file in l:to_add
-            if count(l:current_files, file) == 0
-                let l:current_files = add(l:current_files, file)
+        let l:current_files = g:cpp_projects[g:current_project]["files"]
+        let l:paths_to_add = []
+
+        for item in l:to_add
+            " Make sure the file being added isn't already in the list of
+            " files
+            if count(l:current_files, item) == 0
+                let l:paths_to_add += [expand(item)]
             endif
         endfor
 
-        let g:cpp_projects[g:current_project] = l:current_files + l:to_add
+        let g:cpp_projects[g:current_project]["files"] += l:paths_to_add
     endif
 
 endfunction
@@ -168,7 +171,7 @@ endfunction
 
 function! SetCurrentProject(project_name)
     if get(g:cpp_projects, a:project_name) != 0
-        s:current_project = a:project_name
+        let g:current_project = a:project_name
     else
         echo "Not a valid project name. Use :ShowCPPProjects to view a list of existing projects."
     endif
@@ -177,12 +180,12 @@ endfunction
 
 
 function! ShowCPPProjects()
-    for project in g:cpp_projects
+    for project in keys(g:cpp_projects)
         echo "- " + project
 
         let l:project_files = g:cpp_projects[project]["files"]
-        for file in l:project_files
-            echo "--- " + file
+        for item in l:project_files
+            echo "--- " + item
         endfor
     endfor
 
