@@ -9,33 +9,53 @@ let g:cpp_projects = {}
 " format:
 " {project name} : {path} :: {file1} ::: {file2} ::: {file3}...
 " {project name} : ...
-function s:FileToDict(a:file)
-    let l:dict = {}
-    " readfile() automatically splits the file into a list, one item per line
-    " in file
-    let l:split_by_project = readfile(a:file)
+function s:LoadCPPProjects()
+    let l:dictionary = {}
+    " Only try loading projects.txt if the file exists
+    if findfile("projects.txt", "~/.vim") = "~/.vim/projects.txt"
+        " readfile() automatically splits the file into a list, one item per line
+        " in file
+        let l:split_by_project = readfile("~/.vim/projects.txt")
         for project in l:split_by_project
             let l:first = split(project, " : ")
             let l:name = l:first[0]
-            l:dict[l:name] = {}
+            l:dictionary[l:name] = {}
 
             let l:second = split(l:first[1], " :: ")
             let l:path = l:second[0]
-            l:dict[l:name]["path"] = l:path
+            l:dictionary[l:name]["path"] = l:path
 
             let l:third = split(l:second[1], " ::: ")
             let l:files = l:third
-            l:dict[l:name]["files"] = l:files
+            l:dictionary[l:name]["files"] = l:files
         endfor
-    return l:dict
+    endif
+
+    return l:dictionary
+
+endfunction
+
+
+function SaveCPPProjects()
+    l:line_list = []
+    for project in keys(g:cpp_projects)
+        l:project_string = ""
+        l:project_string += project + " : "
+        l:project_string += g:cpp_projects[project]["path"] + " :: "
+        for item in g:cpp_projects[project]["files"]
+            l:project_string += item += " ::: "
+        endfor
+        add(l:line_list, l:project_string)
+    endfor
+    writefile(l:line_list, "~/.vim/projects.txt")
 
 endfunction
 
 
 augroup load_and_write_projects
     autocmd!
-    autocmd BufWinEnter * let g:cpp_projects = FileToDict("./projects.txt")
-    autocmd BufWinLeave * call 
+    autocmd BufWinEnter * let g:cpp_projects = LoadCPPProjects()
+    autocmd BufWinLeave * call SaveCPPProjects() 
 augroup END
 
 " Settings (adjustable) ------------------------------
