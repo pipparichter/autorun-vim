@@ -37,17 +37,17 @@ endfunction
 
 
 function! SaveCPPProjects()
-    l:line_list = []
+    let l:line_list = []
     for project in keys(g:cpp_projects)
-        l:project_string = ""
-        l:project_string += project + " : "
-        l:project_string += g:cpp_projects[project]["path"] + " :: "
+        let l:project_string = ""
+        let l:project_string += project + " : "
+        let l:project_string += g:cpp_projects[project]["path"] + " :: "
         for item in g:cpp_projects[project]["files"]
-            l:project_string += item += " ::: "
+            let l:project_string += item + " ::: "
         endfor
         add(l:line_list, l:project_string)
     endfor
-    writefile(l:line_list, "~/.vim/projects.txt")
+    call writefile(l:line_list, "~/.vim/projects.txt")
 
 endfunction
 
