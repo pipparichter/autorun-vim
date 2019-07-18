@@ -9,7 +9,7 @@ let g:cpp_projects = {}
 " format:
 " {project name} : {path} :: {file1} ::: {file2} ::: {file3}...
 " {project name} : ...
-function s:LoadCPPProjects()
+function! LoadCPPProjects()
     let l:dictionary = {}
     " Only try loading projects.txt if the file exists
     if findfile("projects.txt", "~/.vim") = "~/.vim/projects.txt"
@@ -36,7 +36,7 @@ function s:LoadCPPProjects()
 endfunction
 
 
-function SaveCPPProjects()
+function! SaveCPPProjects()
     l:line_list = []
     for project in keys(g:cpp_projects)
         l:project_string = ""
@@ -65,7 +65,7 @@ let s:current_project = ""
 
 " Functions -------------------------------------------
 
-function Run()
+function! Run()
     let l:match_cpp = len(matchstr("%", "*.cpp\|*.hpp\|*.h")) 
     let l:match_py = len(matchstr("%", "*.py"))
     
@@ -80,7 +80,7 @@ function Run()
 endfunction
 
 
-function RunPython()
+function! RunPython()
     " Save the open buffer
     w
     " Open a new window and run the current file
@@ -89,7 +89,7 @@ function RunPython()
 endfunction
 
 
-function RunCPP()
+function! RunCPP()
     if len(s:current_project) == 0
         echo "Please specify your current project using the :SetCurrentProject command"
     else
@@ -113,7 +113,7 @@ function RunCPP()
 endfunction
 
 
-function MakeCPPProject(project_name)
+function! MakeCPPProject(project_name)
     " Check to see whether or not the project already exists
     if get(g:cpp_projects, a:project_name) == 0
         " Add a new project to cpp_projects
@@ -142,7 +142,7 @@ endfunction
 
 " Accepts an undefined number of arguments in the form of filenames (if the
 " file is in the project home directory) or filepaths (preferred)
-function AddToCPPProject(...)
+function! AddToCPPProject(...)
     if len(g:current_project) == 0
         echo "Please specify youre current project using the :SetCurrentCPPProject command"
     else
@@ -166,7 +166,7 @@ function AddToCPPProject(...)
 endfunction
 
 
-function SetCurrentProject(project_name)
+function! SetCurrentProject(project_name)
     if get(g:cpp_projects, a:project_name) != 0
         s:current_project = a:project_name
     else
@@ -176,7 +176,7 @@ function SetCurrentProject(project_name)
 endfunction
 
 
-function ShowCPPProjects()
+function! ShowCPPProjects()
     for project in g:cpp_projects
         echo "- " + project
 
@@ -193,7 +193,7 @@ endfunction
 command RunCPP call RunCPP()
 command -nargs=* AddToCPPProject call AddToCPPProject(<args>)
 command ShowCPPProjects call ShowCPPProjects()
-command -nargs=1 SetCurrentProject(<args>)
+command -nargs=1 SetCurrentProject call SetCurrentProject(<args>)
 command -nargs=1 MakeCPPProject call MakeCPPProject(<args>)
 command Run call Run()
 
