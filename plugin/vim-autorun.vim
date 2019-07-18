@@ -12,10 +12,10 @@ let g:cpp_projects = {}
 function! LoadCPPProjects()
     let l:dictionary = {}
     " Only try loading projects.txt if the file exists
-    if findfile("projects.txt", "~/.vim") = "~/.vim/projects.txt"
+    if findfile("projects.txt", expand("~/.vim")) = expand("~/.vim/projects.txt")
         " readfile() automatically splits the file into a list, one item per line
         " in file
-        let l:split_by_project = readfile("~/.vim/projects.txt")
+        let l:split_by_project = readfile(expand("~/vim/projects.txt"))
         for project in l:split_by_project
             let l:first = split(project, " : ")
             let l:name = l:first[0]
@@ -47,7 +47,7 @@ function! SaveCPPProjects()
         endfor
         add(l:line_list, l:project_string)
     endfor
-    call writefile(l:line_list, "~/.vim/projects.txt")
+    call writefile(l:line_list, expand("~/.vim/projects.txt"))
 
 endfunction
 
