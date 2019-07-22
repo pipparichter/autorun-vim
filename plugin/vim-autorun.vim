@@ -28,6 +28,7 @@ function! LoadCPPProjects()
     let l:dictionary = {}
     " Only try loading projects.txt if the file exists
     if findfile("projects.txt", expand("~/.vim")) == expand("~/.vim/projects.txt")
+        echom "projects.txt exists... Loading saved projects..."
         " readfile() automatically splits the file into a list, one item per line
         " in file
         let l:split_by_project = readfile(expand("~/.vim/projects.txt"))
@@ -64,6 +65,7 @@ function! SaveCPPProjects()
         add(l:line_list, l:project_string)
     endfor
     call writefile(l:line_list, expand("~/.vim/projects.txt"))
+    ! "echo 'Save successful'"
 
 endfunction
 
