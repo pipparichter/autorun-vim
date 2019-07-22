@@ -157,8 +157,9 @@ function! MakeCPPProject(project_name)
     else
         try 
             " Check to see whether or not the project already exists
-            get(g:cpp_projects, a:project_name) == 0
-            let l:is_new = 1
+            if get(g:cpp_projects, a:project_name) == 0
+                let l:is_new = 1
+            endif
         " Vim returns 'E735: Can only compare Dictionary with Dictionary' if
         " the project already exists; this addition handles that exception
         catch /E735:/
