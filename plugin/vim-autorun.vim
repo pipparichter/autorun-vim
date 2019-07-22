@@ -63,7 +63,7 @@ function! SaveCPPProjects()
         for item in g:cpp_projects[project]["files"]
             let l:project_string .= item . " ::: "
         endfor
-        add(l:line_list, l:project_string)
+        let l:line_list = add(l:line_list, l:project_string)
     endfor
     call writefile(l:line_list, expand("~/.vim/projects.txt"))
     execute "! echo 'Save successful'"
