@@ -9,7 +9,7 @@
 
 " Stores project information in the form 
 " {project_name:['path':path,'files':[file1, file2, file3,...]}, ...}
-let g:cpp_projects = {}
+let g:projects = {}
 
 
 " Initialize the current_project variable
@@ -23,7 +23,7 @@ let g:current_project = ""
 "
 " Note that no projects.txt exists if this is the first time loading this
 " plugin.
-function! LoadCPPProjects()
+function! LoadProjects()
 
     let l:dictionary = {}
     " Only try loading projects.txt if the file exists
@@ -52,15 +52,15 @@ function! LoadCPPProjects()
 endfunction
 
 
-function! SaveCPPProjects()
+function! SaveProjects()
 
     let l:line_list = []
-    for project in keys(g:cpp_projects)
+    for project in keys(g:projects)
         echom "Saving " . project . "..."
         let l:project_string = ""
         let l:project_string .= project . " : "
-        let l:project_string .= g:cpp_projects[project]["path"] . " :: "
-        for item in g:cpp_projects[project]["files"]
+        let l:project_string .= g:projects[project]["path"] . " :: "
+        for item in g:projects[project]["files"]
             let l:project_string .= item . " ::: "
         endfor
         let l:line_list = add(l:line_list, l:project_string)
@@ -73,8 +73,8 @@ endfunction
 
 augroup load_and_write_projects
     autocmd!
-    autocmd BufWinEnter * let g:cpp_projects = LoadCPPProjects()
-    autocmd BufWinLeave * call SaveCPPProjects() 
+    autocmd BufWinEnter * let g:projects = LoadProjects()
+    autocmd BufWinLeave * call SaveProjects() 
 augroup END
 
 
@@ -99,10 +99,10 @@ function! Run()
     
     if l:match_cpp > 0    
         call RunCPP()
-    elseif l:match_py >0
+    elseif l:match_py > 0
         call RunPython()
     else
-        echo "Filetype is not supported."
+        echom "Filetype is not supported."
         return 0
     endif
 
@@ -131,7 +131,7 @@ function! RunCPP()
     if len(s:current_project) == 0
         echom "Please specify your current project using the :SetCurrentProject command"
     else
-        let l:current_project = g:cpp_projects[s:current_project]
+        let l:current_project = g:projects[s:current_project]
         let l:working_directory = l:current_project['path']
         let l:project_files = join(l:current_project['files'], " ")
 
@@ -152,7 +152,7 @@ endfunction
 
 
 " Takes a string project_name 
-function! MakeCPPProject(project_name)
+function! MakeProject(project_name)
         
     if type(a:project_name) != 1
         echom "Invalid project name. Make sure the input is a string."
@@ -160,7 +160,7 @@ function! MakeCPPProject(project_name)
     else
         try 
             " Check to see whether or not the project already exists
-            if get(g:cpp_projects, a:project_name) == 0
+            if get(g:projects, a:project_name) == 0
                 let l:is_new = 1
             endif
         " Vim returns 'E735: Can only compare Dictionary with Dictionary' if
@@ -171,28 +171,28 @@ function! MakeCPPProject(project_name)
 
         if (l:is_new == 1)
             " Add a new project to cpp_projects
-            let g:cpp_projects[a:project_name] = {"path":"", "files":[]}
+            let g:projects[a:project_name] = {"path":"", "files":[]}
         
             " Set the project path to the current working directory
             let l:path = expand(getcwd()) 
-            let g:cpp_projects[a:project_name]["path"] = l:path
+            let g:projects[a:project_name]["path"] = l:path
 
 
             if g:add_buffer_when_making_project == 1
                 " Save the current buffer
                 w
                 " Add the current buffer to the new project
-                let g:cpp_projects[a:project_name]["files"] += [expand("%")] 
+                let g:projects[a:project_name]["files"] += [expand("%")] 
             elseif g:add_buffer_when_making_project == 0
                 " If the setting is off, do not add the current buffer to the new
                 " project (not a necessary command, there for readability)
-                let g:cpp_projects[a:project_name]["files"] = []
+                let g:projects[a:project_name]["files"] = []
             else
                 echom "Make sure g:add_buffer_when_making_project is either 0 or 1."
             endif
         " Procedure if the project already existes (i.e., is_new == 0)    
         else
-            echom "Project already exists. Use :RemoveCPPProject to remove from g:cpp_projects."
+            echom "Project already exists. Use :RemoveCPPProject to remove from g:projects."
         endif
     endif
 
@@ -201,7 +201,7 @@ endfunction
 
 " Accepts an undefined number of arguments in the form of relative file paths,
 " and adds the filepaths to the 'files' list for the current project.
-function! AddToCPPProject(...)
+function! AddToProject(...)
     
     if g:current_project == ""
         echom "Please specify your current project using the :SetCurrentCPPProject command"
@@ -210,7 +210,7 @@ function! AddToCPPProject(...)
         w
 
         let l:to_add = a:00
-        let l:current_files = g:cpp_projects[g:current_project]["files"]
+        let l:current_files = g:projects[g:current_project]["files"]
         let l:paths_to_add = []
 
         for item in l:to_add
@@ -221,17 +221,17 @@ function! AddToCPPProject(...)
             endif
         endfor
 
-        let g:cpp_projects[g:current_project]["files"] += l:paths_to_add
+        let g:projects[g:current_project]["files"] += l:paths_to_add
     endif
 
 endfunction
 
 
-" Assigns the the argument, which must be a string and an existing project in g:cpp_projects, 
+" Assigns the the argument, which must be a string and an existing project in g:projects, 
 " to the g:current_project variable.
 function! SetCurrentProject(project_name)
     
-    if get(g:cpp_projects, a:project_name) != 0
+    if get(g:projects, a:project_name) != 0
         let g:current_project = a:project_name
     else
         echom "Not a valid project name. Use :ShowCPPProjects to view a list of existing projects."
@@ -240,14 +240,14 @@ function! SetCurrentProject(project_name)
 endfunction
 
 
-" Displays the current list of projects in g:cpp_projects, and the files
+" Displays the current list of projects in g:projects, and the files
 " associated with each project.
-function! ShowCPPProjects()
+function! ShowProjects()
     
-    for project in keys(g:cpp_projects)
+    for project in keys(g:projects)
         echom "- " . project
 
-        let l:project_files = g:cpp_projects[project]["files"]
+        let l:project_files = g:projects[project]["files"]
         for item in l:project_files
             echom "--- " . item
         endfor
@@ -262,10 +262,10 @@ endfunction
 
 command RunCPP call RunCPP()
 command RunPy call RunPython()
-command -nargs=* AddToCPPProject call AddToCPPProject(<args>)
-command ShowCPPProjects call ShowCPPProjects()
+command -nargs=* AddToProject call AddToProject(<args>)
+command ShowProjects call ShowProjects()
 command -nargs=1 SetCurrentProject call SetCurrentProject(<args>)
-command -nargs=1 MakeCPPProject call MakeCPPProject(<args>)
+command -nargs=1 MakeProject call MakeProject(<args>)
 command Run call Run()
 
 
