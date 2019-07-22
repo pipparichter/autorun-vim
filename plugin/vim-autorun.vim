@@ -168,7 +168,7 @@ function! MakeCPPProject(project_name)
                 " Save the current buffer
                 w
                 " Add the current buffer to the new project
-                let let g:cpp_projects[a:project_name]["files"] += [expand("%")] 
+                let g:cpp_projects[a:project_name]["files"] += [expand("%")] 
             elseif g:add_buffer_when_making_project == 0
                 " If the setting is off, do not add the current buffer to the new
                 " project (not a necessary command, there for readability)
