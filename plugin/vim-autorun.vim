@@ -153,9 +153,19 @@ function! MakeCPPProject(project_name)
         
     if type(a:project_name) != 1
         echom "Invalid project name. Make sure the input is a string."
+    
     else
-        " Check to see whether or not the project already exists
-        if get(g:cpp_projects, a:project_name) == 0
+        try 
+            " Check to see whether or not the project already exists
+            get(g:cpp_projects, a:project_name) == 0
+            let l:is_new = 1
+        " Vim returns 'E735: Can only compare Dictionary with Dictionary' if
+        " the project already exists; this addition handles that exception
+        catch /E735:/
+            let l:is_new = 0
+        endtry
+
+        if (l:is_new == 1)
             " Add a new project to cpp_projects
             let g:cpp_projects[a:project_name] = {"path":"", "files":[]}
         
@@ -176,6 +186,7 @@ function! MakeCPPProject(project_name)
             else
                 echom "Make sure g:add_buffer_when_making_project is either 0 or 1."
             endif
+        " Procedure if the project already existes (i.e., is_new == 0)    
         else
             echom "Project already exists. Use :RemoveCPPProject to remove from g:cpp_projects."
         endif
