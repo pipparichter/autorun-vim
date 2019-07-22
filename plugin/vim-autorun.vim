@@ -56,6 +56,7 @@ function! SaveCPPProjects()
 
     let l:line_list = []
     for project in keys(g:cpp_projects)
+        echom "Saving " . project . "..."
         let l:project_string = ""
         let l:project_string .= project . " : "
         let l:project_string .= g:cpp_projects[project]["path"] . " :: "
@@ -65,7 +66,7 @@ function! SaveCPPProjects()
         add(l:line_list, l:project_string)
     endfor
     call writefile(l:line_list, expand("~/.vim/projects.txt"))
-    ! "echo 'Save successful'"
+    execute "! echo 'Save successful'"
 
 endfunction
 
