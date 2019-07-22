@@ -79,7 +79,7 @@ augroup END
 " Settings (adjustable) ------------------------------
 
 
-let g:add_buffer_when_making_new_project = 1
+let g:add_buffer_when_making_project = 1
 let s:current_project = ""
 
 
@@ -150,7 +150,7 @@ endfunction
 
 " Takes a string project_name 
 function! MakeCPPProject(project_name)
-
+        
     if type(a:project_name) != 1
         echom "Invalid project name. Make sure the input is a string."
     else
