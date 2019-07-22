@@ -242,11 +242,11 @@ endfunction
 function! ShowCPPProjects()
     
     for project in keys(g:cpp_projects)
-        echom "- " + project
+        echom "- " . project
 
         let l:project_files = g:cpp_projects[project]["files"]
         for item in l:project_files
-            echom "--- " + item
+            echom "--- " . item
         endfor
     endfor
 
