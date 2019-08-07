@@ -231,7 +231,7 @@ endfunction
 " to the g:current_project variable.
 function! SetCurrentProject(project_name)
     
-    if get(g:projects, a:project_name) != 0
+    if has_key(g:projects, a:project_name) != 0
         let g:current_project = a:project_name
     else
         echom "Not a valid project name. Use :ShowCPPProjects to view a list of existing projects."
