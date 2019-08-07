@@ -201,7 +201,7 @@ endfunction
 
 " Accepts an undefined number of arguments in the form of relative file paths,
 " and adds the filepaths to the 'files' list for the current project.
-function! AddToProject(args)
+function! AddToProject(...)
     
     if g:current_project == ""
         echom "Please specify your current project using the :SetCurrentCPPProject command"
@@ -209,8 +209,8 @@ function! AddToProject(args)
         " Save the current buffer
         w
 
-        " a:args is a list of the file names to add
-        let l:to_add = a:args
+        " a:000 is a list of the arguments
+        let l:to_add = a:000
         let l:current_files = g:projects[g:current_project]["files"]
         let l:paths_to_add = []
 
@@ -265,8 +265,8 @@ command RunCPP call RunCPP()
 command RunPy call RunPython()
 command -nargs=+ AddToProject call AddToProject(<f-args>)
 command ShowProjects call ShowProjects()
-command -nargs=1 SetCurrentProject call SetCurrentProject(<args>)
-command -nargs=1 MakeProject call MakeProject(<args>)
+command -nargs=1 SetCurrentProject call SetCurrentProject(<q-args>)
+command -nargs=1 MakeProject call MakeProject(<q-args>)
 command Run call Run()
 
 
